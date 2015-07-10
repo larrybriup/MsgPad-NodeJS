@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <script type="text/javascript" src="./js/jquery-1.10.2.js"></script>
+    <link rel="stylesheet" href="./css/style.css"/>
+    <link rel="stylesheet" href="./bootstrap/Content/bootstrap.css"/>
+    <link rel="stylesheet" href="./bootstrap/Content/bootstrap-theme.css"/>
+    <style type="text/css">
+        .bold {
+            font-weight: bold;
+        }
+
+        .hdie {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div style="width:800px;margin:0 auto;">
+    <dl id="list" class="panel panel-success">
+        <dt class="panel-heading"><%= title %></dt>
+        <%
+        data.forEach(function(row){
+        %>
+        <dd>
+            <blockquote>
+                <div class="bold">
+                    <%= row.name %>
+                    | <%= Date.valueOf(row.date)() %>
+                    | <%= (row.email || '') %>
+                    <span class="del glyphicon glyphicon-remove btn" data-id="<%= row._id %>"></span>
+                </div>
+                <div><%= row.message %></div>
+            </blockquote>
+        </dd>
+        <% }); %>
+    </dl>
+    <dl class="panel panel-success">
+        <dt class="panel-heading">Message</dt>
+        <dd class="" style="padding: 10px">
+            <form>
+                <input type="hidden" name="quoteId"/>
+
+                <div class="form-group">
+                    <div class="input-group">
+                        <label class="input-group-addon">Name</label>
+                        <input id="name" type="text" class="form-control"/>
+                        <label class="input-group-addon">Email</label>
+                        <input id="email" type="text" class="form-control"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <textarea id="message" class="form-control" rows="5" placeholder="Enter message here"></textarea>
+                </div>
+                <div class="form-group text-right">
+                    <input id="submit" type="button" value="Submit" class="btn btn-success"/>
+                </div>
+            </form>
+        </dd>
+    </dl>
+</div>
+<script type="text/javascript">
+    $(function () {
+        var $list = $('#list'),
+                $name = $('#name'),
+                $email = $('#email'),
+                $message = $('#message');
+
+        $('#submit').click(function () {
+            $.post('/msg', {
+                name: $name.val(),
+                email: $email.val(),
+                message: $message.val()
+            }, function (msg) {
+                var dd = $('<dd>');
+                var qt = $('<blockquote class="hdie">');
+                var h = $('<div class="bold">')
+                var m = $('<div>');
+                var r = $('<span class="del glyphicon glyphicon-remove btn">');
+                r.attr('data-id', msg._id);
+
+                h.text(msg.name + '|' + Date.valueOf(msg.date)() + '|' + (msg.email || ''))
+                        .append(r);
+                m.text(msg.message);
+                qt.append(h).append(m);
+                dd.append(qt);
+
+                $list.append(dd);
+                qt.show('slow');
+            });
+        });
+
+        $list.delegate('.del', 'click', function () {
+            var _this = $(this);
+            $.ajax({
+                url: '/msg',
+                type: 'delete',
+                data: {
+                    id: $(this).attr('data-id')
+                },
+                success: function (data) {
+                    console.log(data);
+                    _this.parentsUntil('dd').hide('slow', function () {
+                        $(this).remove();
+                    });
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>
