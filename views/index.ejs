@@ -27,7 +27,7 @@
             <blockquote>
                 <div class="bold">
                     <%= row.name %>
-                    | <%= Date.valueOf(row.date)() %>
+                    | <%= new Date(Number(row.date)) %>
                     | <%= (row.email || '') %>
                     <span class="del glyphicon glyphicon-remove btn" data-id="<%= row._id %>"></span>
                 </div>
@@ -80,7 +80,7 @@
                 var r = $('<span class="del glyphicon glyphicon-remove btn">');
                 r.attr('data-id', msg._id);
 
-                h.text(msg.name + '|' + Date.valueOf(msg.date)() + '|' + (msg.email || ''))
+                h.text(msg.name + '|' + new Date(Number(msg.date) + '|' + (msg.email || ''))
                         .append(r);
                 m.text(msg.message);
                 qt.append(h).append(m);
